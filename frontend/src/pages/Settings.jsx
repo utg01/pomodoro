@@ -143,13 +143,13 @@ const Settings = () => {
   };
 
   return (
-    <div className="p-8 relative z-0">
+    <div className="p-4 sm:p-6 md:p-8 relative z-0">
       <Toaster />
       
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Settings</h1>
-          <p className="text-gray-400 font-mono text-sm">Customize your experience</p>
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Settings</h1>
+          <p className="text-gray-400 font-mono text-xs sm:text-sm">Customize your experience</p>
         </div>
 
         {/* Daily Goal */}
