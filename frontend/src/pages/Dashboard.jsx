@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, Flame, Target, TrendingUp, CheckCircle, Activity, Calendar } from 'lucide-react';
 import { Card } from '../components/ui/card';
-import { getStorageData } from '../utils/storage';
+import { getSettings, getTodos, getSessions } from '../utils/firestoreService';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [settings, setSettings] = useState({ dailyGoal: 120, currentStreak: 0 });
   const [todayStudyTime, setTodayStudyTime] = useState(0);
   const [todos, setTodos] = useState([]);
@@ -13,40 +15,47 @@ const Dashboard = () => {
   const [weeklyData, setWeeklyData] = useState([]);
 
   useEffect(() => {
+    if (!user) return;
     loadData();
-  }, []);
+  }, [user]);
 
-  const loadData = () => {
-    const savedSettings = getStorageData('settings') || { dailyGoal: 120, currentStreak: 0 };
-    const savedTodos = getStorageData('todos') || [];
-    const sessions = getStorageData('studySessions') || [];
-    
-    setSettings(savedSettings);
-    setTodos(savedTodos);
-    
-    // Calculate today's study time
-    const today = new Date().toDateString();
-    const todaySessions = sessions.filter(s => new Date(s.date).toDateString() === today);
-    const totalMinutes = todaySessions.reduce((sum, s) => sum + s.duration, 0);
-    setTodayStudyTime(totalMinutes);
-    
-    // Get recent sessions
-    setRecentSessions(sessions.slice(-5).reverse());
-    
-    // Get weekly data
-    const weekData = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toDateString();
-      const daySessions = sessions.filter(s => new Date(s.date).toDateString() === dateStr);
-      const minutes = daySessions.reduce((sum, s) => sum + s.duration, 0);
-      weekData.push({
-        day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        minutes
-      });
+  const loadData = async () => {
+    try {
+      const [savedSettings, savedTodos, sessions] = await Promise.all([
+        getSettings(),
+        getTodos(),
+        getSessions()
+      ]);
+      
+      setSettings(savedSettings || { dailyGoal: 120, currentStreak: 0 });
+      setTodos(savedTodos || []);
+      
+      // Calculate today's study time
+      const today = new Date().toDateString();
+      const todaySessions = sessions.filter(s => new Date(s.timestamp).toDateString() === today);
+      const totalMinutes = todaySessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+      setTodayStudyTime(totalMinutes);
+      
+      // Get recent sessions
+      setRecentSessions(sessions.slice(-5).reverse());
+      
+      // Get weekly data
+      const weekData = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toDateString();
+        const daySessions = sessions.filter(s => new Date(s.timestamp).toDateString() === dateStr);
+        const minutes = daySessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+        weekData.push({
+          day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+          minutes
+        });
+      }
+      setWeeklyData(weekData);
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
     }
-    setWeeklyData(weekData);
   };
 
   const pendingTasks = todos.filter(t => !t.completed).length;
