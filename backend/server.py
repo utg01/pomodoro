@@ -41,7 +41,7 @@ class PomodoroSession(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    user_id: str = "default_user"  # For now, single user. Add auth later
+    user_id: str
     date: str
     duration: int
     type: str  # 'work', 'shortBreak', 'longBreak'
@@ -51,7 +51,7 @@ class PomodoroSession(BaseModel):
 class PomodoroSettings(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
-    user_id: str = "default_user"
+    user_id: str
     daily_goal: int = 120
     current_streak: int = 0
     last_study_date: Optional[str] = None
@@ -65,7 +65,7 @@ class Todo(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    user_id: str = "default_user"
+    user_id: str
     title: str
     completed: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -76,6 +76,11 @@ class Todo(BaseModel):
 @api_router.get("/")
 async def root():
     return {"message": "Pomodoro App API - Firebase Edition", "status": "running"}
+
+@api_router.get("/me")
+async def get_current_user_info(current_user: dict = Depends(get_current_user)):
+    """Get current authenticated user info"""
+    return current_user
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
@@ -101,9 +106,15 @@ async def get_status_checks():
     
     return status_checks
 
-# Pomodoro Session Endpoints
+# Pomodoro Session Endpoints (Protected)
 @api_router.post("/sessions", response_model=PomodoroSession)
-async def create_session(session: PomodoroSession):
+async def create_session(
+    session: PomodoroSession,
+    current_user: dict = Depends(get_current_user)
+):
+    # Override user_id with authenticated user
+    session.user_id = current_user['uid']
+    
     doc = session.model_dump()
     doc['timestamp'] = doc['timestamp'].isoformat()
     
@@ -111,8 +122,8 @@ async def create_session(session: PomodoroSession):
     return session
 
 @api_router.get("/sessions", response_model=List[PomodoroSession])
-async def get_sessions(user_id: str = "default_user"):
-    docs = db.collection('pomodoro_sessions').where('user_id', '==', user_id).stream()
+async def get_sessions(current_user: dict = Depends(get_current_user)):
+    docs = db.collection('pomodoro_sessions').where('user_id', '==', current_user['uid']).stream()
     sessions = []
     
     for doc in docs:
@@ -123,27 +134,41 @@ async def get_sessions(user_id: str = "default_user"):
     
     return sessions
 
-# Settings Endpoints
+# Settings Endpoints (Protected)
 @api_router.get("/settings", response_model=PomodoroSettings)
-async def get_settings(user_id: str = "default_user"):
-    doc = db.collection('settings').document(user_id).get()
+async def get_settings(current_user: dict = Depends(get_current_user)):
+    doc = db.collection('settings').document(current_user['uid']).get()
     
     if doc.exists:
         return doc.to_dict()
     else:
-        # Return default settings
-        default_settings = PomodoroSettings()
+        # Return default settings with user_id
+        default_settings = PomodoroSettings(user_id=current_user['uid'])
+        # Save default settings
+        db.collection('settings').document(current_user['uid']).set(default_settings.model_dump())
         return default_settings
 
 @api_router.post("/settings", response_model=PomodoroSettings)
-async def update_settings(settings: PomodoroSettings):
+async def update_settings(
+    settings: PomodoroSettings,
+    current_user: dict = Depends(get_current_user)
+):
+    # Override user_id with authenticated user
+    settings.user_id = current_user['uid']
+    
     doc = settings.model_dump()
-    db.collection('settings').document(settings.user_id).set(doc, merge=True)
+    db.collection('settings').document(current_user['uid']).set(doc, merge=True)
     return settings
 
-# Todo Endpoints
+# Todo Endpoints (Protected)
 @api_router.post("/todos", response_model=Todo)
-async def create_todo(todo: Todo):
+async def create_todo(
+    todo: Todo,
+    current_user: dict = Depends(get_current_user)
+):
+    # Override user_id with authenticated user
+    todo.user_id = current_user['uid']
+    
     doc = todo.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     
@@ -151,8 +176,8 @@ async def create_todo(todo: Todo):
     return todo
 
 @api_router.get("/todos", response_model=List[Todo])
-async def get_todos(user_id: str = "default_user"):
-    docs = db.collection('todos').where('user_id', '==', user_id).stream()
+async def get_todos(current_user: dict = Depends(get_current_user)):
+    docs = db.collection('todos').where('user_id', '==', current_user['uid']).stream()
     todos = []
     
     for doc in docs:
@@ -164,7 +189,19 @@ async def get_todos(user_id: str = "default_user"):
     return todos
 
 @api_router.put("/todos/{todo_id}", response_model=Todo)
-async def update_todo(todo_id: str, todo: Todo):
+async def update_todo(
+    todo_id: str,
+    todo: Todo,
+    current_user: dict = Depends(get_current_user)
+):
+    # Verify todo belongs to user
+    existing_doc = db.collection('todos').document(todo_id).get()
+    if not existing_doc.exists or existing_doc.to_dict().get('user_id') != current_user['uid']:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    
+    # Override user_id with authenticated user
+    todo.user_id = current_user['uid']
+    
     doc = todo.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     
@@ -172,7 +209,15 @@ async def update_todo(todo_id: str, todo: Todo):
     return todo
 
 @api_router.delete("/todos/{todo_id}")
-async def delete_todo(todo_id: str):
+async def delete_todo(
+    todo_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    # Verify todo belongs to user
+    existing_doc = db.collection('todos').document(todo_id).get()
+    if not existing_doc.exists or existing_doc.to_dict().get('user_id') != current_user['uid']:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    
     db.collection('todos').document(todo_id).delete()
     return {"message": "Todo deleted successfully"}
 
