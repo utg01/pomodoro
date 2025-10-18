@@ -42,7 +42,7 @@ User → Google OAuth → Firebase Auth → ID Token → Backend Verification �
 ## 🚀 Testing Authentication
 
 ### Step 1: Access the App
-Open: https://install-solution.preview.emergentagent.com
+Open: https://firebase-persist.preview.emergentagent.com
 
 ### Step 2: Login
 1. You'll see the login page (if not logged in)
