@@ -73,15 +73,15 @@ const Statistics = () => {
   const maxMinutes = Math.max(...dailyData.map(d => d.minutes), 1);
 
   return (
-    <div className="p-8 relative z-0">
+    <div className="p-4 sm:p-6 md:p-8 relative z-0">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Statistics</h1>
-          <p className="text-gray-400 font-mono text-sm">Track your productivity journey</p>
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Statistics</h1>
+          <p className="text-gray-400 font-mono text-xs sm:text-sm">Track your productivity journey</p>
         </div>
 
         {/* Time Range Filter */}
-        <div className="flex gap-3 mb-6">
+        <div className="flex flex-wrap gap-2 sm:gap-3 mb-6">
           {['week', 'month', 'all'].map(range => (
             <button
               key={range}
