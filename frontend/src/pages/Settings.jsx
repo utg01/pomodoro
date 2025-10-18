@@ -4,12 +4,14 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Plus, Trash2, Save, Settings as SettingsIcon, Target, Timer as TimerIcon } from 'lucide-react';
-import { getStorageData, saveStorageData } from '../utils/storage';
+import { getSettings, saveSettings } from '../utils/firestoreService';
+import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../hooks/use-toast';
 import { Toaster } from '../components/ui/toaster';
 
 const Settings = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [settings, setSettings] = useState({ dailyGoal: 120 });
   const [presets, setPresets] = useState([]);
   const [newPreset, setNewPreset] = useState({
@@ -20,26 +22,46 @@ const Settings = () => {
   });
 
   useEffect(() => {
-    const savedSettings = getStorageData('settings') || { dailyGoal: 120, currentStreak: 0 };
-    const savedPresets = getStorageData('presets') || [
-      { id: 'classic', name: 'Classic Pomodoro', work: 25, shortBreak: 5, longBreak: 15 },
-      { id: 'short', name: 'Short Sessions', work: 15, shortBreak: 3, longBreak: 10 },
-      { id: 'long', name: 'Long Focus', work: 50, shortBreak: 10, longBreak: 30 }
-    ];
+    if (!user) return;
     
-    setSettings(savedSettings);
-    setPresets(savedPresets);
-  }, []);
+    const loadSettings = async () => {
+      try {
+        const savedSettings = await getSettings();
+        if (savedSettings) {
+          setSettings(savedSettings);
+          setPresets(savedSettings.presets || [
+            { id: 'classic', name: 'Classic Pomodoro', work: 25, shortBreak: 5, longBreak: 15 },
+            { id: 'short', name: 'Short Sessions', work: 15, shortBreak: 3, longBreak: 10 },
+            { id: 'long', name: 'Long Focus', work: 50, shortBreak: 10, longBreak: 30 }
+          ]);
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error);
+      }
+    };
+    
+    loadSettings();
+  }, [user]);
 
-  const handleSaveSettings = () => {
-    saveStorageData('settings', settings);
-    toast({
-      title: "Success",
-      description: "Settings saved successfully"
-    });
+  const handleSaveSettings = async () => {
+    try {
+      const updatedSettings = { ...settings, presets };
+      await saveSettings(updatedSettings);
+      toast({
+        title: "Success",
+        description: "Settings saved successfully"
+      });
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save settings",
+        variant: "destructive"
+      });
+    }
   };
 
-  const addPreset = () => {
+  const addPreset = async () => {
     if (!newPreset.name.trim()) {
       toast({
         title: "Error",
@@ -49,29 +71,40 @@ const Settings = () => {
       return;
     }
 
-    const preset = {
-      id: Date.now().toString(),
-      ...newPreset
-    };
+    try {
+      const preset = {
+        id: Date.now().toString(),
+        ...newPreset
+      };
 
-    const updatedPresets = [...presets, preset];
-    setPresets(updatedPresets);
-    saveStorageData('presets', updatedPresets);
+      const updatedPresets = [...presets, preset];
+      setPresets(updatedPresets);
+      
+      const updatedSettings = { ...settings, presets: updatedPresets };
+      await saveSettings(updatedSettings);
 
-    setNewPreset({
-      name: '',
-      work: 25,
-      shortBreak: 5,
-      longBreak: 15
-    });
+      setNewPreset({
+        name: '',
+        work: 25,
+        shortBreak: 5,
+        longBreak: 15
+      });
 
-    toast({
-      title: "Success",
-      description: "Preset added successfully"
-    });
+      toast({
+        title: "Success",
+        description: "Preset added successfully"
+      });
+    } catch (error) {
+      console.error('Error adding preset:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add preset",
+        variant: "destructive"
+      });
+    }
   };
 
-  const deletePreset = (id) => {
+  const deletePreset = async (id) => {
     if (['classic', 'short', 'long'].includes(id)) {
       toast({
         title: "Error",
@@ -81,21 +114,32 @@ const Settings = () => {
       return;
     }
 
-    const updatedPresets = presets.filter(p => p.id !== id);
-    setPresets(updatedPresets);
-    saveStorageData('presets', updatedPresets);
+    try {
+      const updatedPresets = presets.filter(p => p.id !== id);
+      setPresets(updatedPresets);
+      
+      const updatedSettings = { ...settings, presets: updatedPresets };
+      await saveSettings(updatedSettings);
 
-    toast({
-      title: "Deleted",
-      description: "Preset removed successfully"
-    });
+      toast({
+        title: "Deleted",
+        description: "Preset removed successfully"
+      });
+    } catch (error) {
+      console.error('Error deleting preset:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete preset",
+        variant: "destructive"
+      });
+    }
   };
 
   const clearAllData = () => {
-    if (window.confirm('Are you sure you want to clear all data? This cannot be undone.')) {
-      localStorage.clear();
-      window.location.reload();
-    }
+    toast({
+      title: "Info",
+      description: "Your data is synced to Firebase. Sign out to clear local cache.",
+    });
   };
 
   return (
