@@ -315,7 +315,7 @@ const Timer = () => {
                 size="lg"
                 variant="outline"
                 onClick={resetTimer}
-                className="px-8 py-7 rounded-xl bg-[#1a1a24] border-[#22d3ee]/20 hover:border-[#22d3ee]/40 text-white"
+                className="px-6 sm:px-8 py-6 sm:py-7 rounded-xl bg-[#1a1a24] border-[#22d3ee]/20 hover:border-[#22d3ee]/40 text-white"
               >
                 <RotateCcw className="w-5 h-5" />
               </Button>
