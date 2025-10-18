@@ -1,7 +1,10 @@
 import React from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Timer from './pages/Timer';
 import TodoList from './pages/TodoList';
@@ -12,15 +15,18 @@ function App() {
   return (
     <div className="App">
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="timer" element={<Timer />} />
-            <Route path="todos" element={<TodoList />} />
-            <Route path="stats" element={<Statistics />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+              <Route index element={<Dashboard />} />
+              <Route path="timer" element={<Timer />} />
+              <Route path="todos" element={<TodoList />} />
+              <Route path="stats" element={<Statistics />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </div>
   );
