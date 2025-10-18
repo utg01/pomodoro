@@ -1,21 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/card';
 import { Clock, TrendingUp, Calendar, Activity } from 'lucide-react';
-import { getStorageData } from '../utils/storage';
+import { getSessions } from '../utils/firestoreService';
+import { useAuth } from '../contexts/AuthContext';
 
 const Statistics = () => {
+  const { user } = useAuth();
   const [sessions, setSessions] = useState([]);
   const [timeRange, setTimeRange] = useState('week');
 
   useEffect(() => {
-    const savedSessions = getStorageData('studySessions') || [];
-    setSessions(savedSessions);
-  }, []);
+    if (!user) return;
+    
+    const loadSessions = async () => {
+      try {
+        const savedSessions = await getSessions();
+        setSessions(savedSessions || []);
+      } catch (error) {
+        console.error('Error loading sessions:', error);
+      }
+    };
+    
+    loadSessions();
+  }, [user]);
 
   const getFilteredSessions = () => {
     const now = new Date();
     return sessions.filter(session => {
-      const sessionDate = new Date(session.date);
+      const sessionDate = new Date(session.timestamp);
       if (timeRange === 'week') {
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         return sessionDate >= weekAgo;
@@ -28,7 +40,7 @@ const Statistics = () => {
   };
 
   const filteredSessions = getFilteredSessions();
-  const totalMinutes = filteredSessions.reduce((sum, s) => sum + s.duration, 0);
+  const totalMinutes = filteredSessions.reduce((sum, s) => sum + (s.duration || 0), 0);
   const totalHours = (totalMinutes / 60).toFixed(1);
   const totalSessions = filteredSessions.length;
   const avgSessionLength = totalSessions > 0 ? (totalMinutes / totalSessions).toFixed(0) : 0;
@@ -45,9 +57,9 @@ const Statistics = () => {
     }
     
     filteredSessions.forEach(session => {
-      const dateStr = new Date(session.date).toDateString();
+      const dateStr = new Date(session.timestamp).toDateString();
       if (dailyMap.hasOwnProperty(dateStr)) {
-        dailyMap[dateStr] += session.duration;
+        dailyMap[dateStr] += (session.duration || 0);
       }
     });
     
