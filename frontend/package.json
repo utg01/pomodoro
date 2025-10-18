@@ -61,9 +61,7 @@
     "test": "craco test"
   },
   "resolutions": {
-    "ajv": "^6.12.6",
-    "ajv-keywords": "^3.5.2",
-    "date-fns": "2.30.0"
+    "ajv": "^6.12.6"
   },
   "browserslist": {
     "production": [
