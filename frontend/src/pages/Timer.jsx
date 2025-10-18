@@ -238,7 +238,7 @@ const Timer = () => {
         </div>
 
         {/* Timer Card */}
-        <Card className="p-12 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20 relative overflow-hidden">
+        <Card className="p-6 sm:p-8 md:p-12 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20 relative overflow-hidden">
           {/* Background glow */}
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5"></div>
           
