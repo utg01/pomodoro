@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Depends
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 import os
@@ -9,6 +9,7 @@ from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
 from firebase_config import get_firestore_client
+from auth_middleware import get_current_user, get_current_user_optional
 
 
 ROOT_DIR = Path(__file__).parent
