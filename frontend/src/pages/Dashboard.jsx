@@ -64,15 +64,15 @@ const Dashboard = () => {
   const maxWeeklyMinutes = Math.max(...weeklyData.map(d => d.minutes), 1);
 
   return (
-    <div className="p-8 relative z-0">
+    <div className="p-4 sm:p-6 md:p-8 relative z-0">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Dashboard</h1>
-        <p className="text-gray-400 font-mono text-sm">Overview of your focus journey</p>
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Dashboard</h1>
+        <p className="text-gray-400 font-mono text-xs sm:text-sm">Overview of your focus journey</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
         {/* Today's Focus */}
         <Card className="p-6 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20 hover:border-[#22d3ee]/40 transition-all card-hover cursor-pointer" onClick={() => navigate('/timer')}>
           <div className="flex items-start justify-between mb-4">
