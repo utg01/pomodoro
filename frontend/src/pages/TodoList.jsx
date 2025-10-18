@@ -7,12 +7,14 @@ import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { Label } from '../components/ui/label';
-import { getStorageData, saveStorageData } from '../utils/storage';
+import { getTodos, saveTodo, updateTodo, deleteTodo as deleteTodoFirebase, subscribeToTodos } from '../utils/firestoreService';
+import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../hooks/use-toast';
 import { Toaster } from '../components/ui/toaster';
 
 const TodoList = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [todos, setTodos] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState('all');
@@ -26,15 +28,17 @@ const TodoList = () => {
   });
 
   useEffect(() => {
-    loadTodos();
-  }, []);
+    if (!user) return;
+    
+    // Subscribe to real-time todos updates
+    const unsubscribe = subscribeToTodos((updatedTodos) => {
+      setTodos(updatedTodos);
+    });
+    
+    return () => unsubscribe();
+  }, [user]);
 
-  const loadTodos = () => {
-    const savedTodos = getStorageData('todos') || [];
-    setTodos(savedTodos);
-  };
-
-  const addTodo = () => {
+  const addTodo = async () => {
     if (!newTodo.title.trim()) {
       toast({
         title: "Error",
@@ -44,49 +48,71 @@ const TodoList = () => {
       return;
     }
 
-    const todo = {
-      id: Date.now(),
-      ...newTodo,
-      completed: false,
-      createdAt: new Date().toISOString()
-    };
+    try {
+      const todo = {
+        id: `todo_${Date.now()}`,
+        ...newTodo,
+        completed: false,
+        createdAt: new Date().toISOString()
+      };
 
-    const updatedTodos = [...todos, todo];
-    setTodos(updatedTodos);
-    saveStorageData('todos', updatedTodos);
+      await saveTodo(todo);
 
-    setNewTodo({
-      title: '',
-      description: '',
-      category: 'study',
-      priority: 'medium',
-      dueDate: ''
-    });
-    setIsDialogOpen(false);
+      setNewTodo({
+        title: '',
+        description: '',
+        category: 'study',
+        priority: 'medium',
+        dueDate: ''
+      });
+      setIsDialogOpen(false);
 
-    toast({
-      title: "Success",
-      description: "Task added successfully"
-    });
+      toast({
+        title: "Success",
+        description: "Task added successfully"
+      });
+    } catch (error) {
+      console.error('Error adding todo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add task",
+        variant: "destructive"
+      });
+    }
   };
 
-  const toggleTodo = (id) => {
-    const updatedTodos = todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    );
-    setTodos(updatedTodos);
-    saveStorageData('todos', updatedTodos);
+  const toggleTodo = async (id) => {
+    try {
+      const todo = todos.find(t => t.id === id);
+      if (todo) {
+        await updateTodo(id, { completed: !todo.completed });
+      }
+    } catch (error) {
+      console.error('Error toggling todo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update task",
+        variant: "destructive"
+      });
+    }
   };
 
-  const deleteTodo = (id) => {
-    const updatedTodos = todos.filter(todo => todo.id !== id);
-    setTodos(updatedTodos);
-    saveStorageData('todos', updatedTodos);
-    
-    toast({
-      title: "Deleted",
-      description: "Task removed successfully"
-    });
+  const deleteTodo = async (id) => {
+    try {
+      await deleteTodoFirebase(id);
+      
+      toast({
+        title: "Deleted",
+        description: "Task removed successfully"
+      });
+    } catch (error) {
+      console.error('Error deleting todo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete task",
+        variant: "destructive"
+      });
+    }
   };
 
   const getPriorityColor = (priority) => {
