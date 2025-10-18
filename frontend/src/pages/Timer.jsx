@@ -4,10 +4,12 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { useToast } from '../hooks/use-toast';
 import { Toaster } from '../components/ui/toaster';
-import { getStorageData, saveStorageData } from '../utils/storage';
+import { getSettings, saveSettings, saveSession } from '../utils/firestoreService';
+import { useAuth } from '../contexts/AuthContext';
 
 const Timer = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [timerMode, setTimerMode] = useState('work');
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
@@ -19,16 +21,26 @@ const Timer = () => {
   const startTimeRef = useRef(null);
 
   useEffect(() => {
-    const savedSettings = getStorageData('settings') || { dailyGoal: 120, currentStreak: 0, lastStudyDate: null };
-    const savedPresets = getStorageData('presets') || [
-      { id: 'classic', name: 'Classic', work: 25, shortBreak: 5, longBreak: 15 },
-      { id: 'short', name: 'Short', work: 15, shortBreak: 3, longBreak: 10 },
-      { id: 'long', name: 'Deep', work: 50, shortBreak: 10, longBreak: 30 }
-    ];
+    const loadSettings = async () => {
+      if (!user) return;
+      
+      try {
+        const savedSettings = await getSettings();
+        if (savedSettings) {
+          setSettings(savedSettings);
+          setPresets(savedSettings.presets || [
+            { id: 'classic', name: 'Classic', work: 25, shortBreak: 5, longBreak: 15 },
+            { id: 'short', name: 'Short', work: 15, shortBreak: 3, longBreak: 10 },
+            { id: 'long', name: 'Deep', work: 50, shortBreak: 10, longBreak: 30 }
+          ]);
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error);
+      }
+    };
     
-    setSettings(savedSettings);
-    setPresets(savedPresets);
-  }, []);
+    loadSettings();
+  }, [user]);
 
   const getCurrentPreset = () => {
     return presets.find(p => p.id === selectedPreset) || presets[0] || { work: 25, shortBreak: 5, longBreak: 15 };
