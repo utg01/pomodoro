@@ -222,7 +222,7 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="mt-6 grid grid-cols-2 gap-4">
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card 
           className="p-6 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 backdrop-blur-xl border-[#22d3ee]/30 hover:border-[#22d3ee]/60 transition-all cursor-pointer group"
           onClick={() => navigate('/timer')}
