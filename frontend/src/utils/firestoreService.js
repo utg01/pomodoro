@@ -1,4 +1,5 @@
 import { db } from '../lib/firebase';
+import { auth } from '../lib/firebase';
 import { 
   collection, 
   doc, 
@@ -11,12 +12,19 @@ import {
   onSnapshot 
 } from 'firebase/firestore';
 
-const USER_ID = 'default_user'; // Single user for now
+const getUserId = () => {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+  return user.uid;
+};
 
 // Settings
 export const saveSettings = async (settings) => {
   try {
-    await setDoc(doc(db, 'settings', USER_ID), settings, { merge: true });
+    const userId = getUserId();
+    await setDoc(doc(db, 'settings', userId), settings, { merge: true });
     return true;
   } catch (error) {
     console.error('Error saving settings:', error);
@@ -26,7 +34,8 @@ export const saveSettings = async (settings) => {
 
 export const getSettings = async () => {
   try {
-    const docRef = doc(db, 'settings', USER_ID);
+    const userId = getUserId();
+    const docRef = doc(db, 'settings', userId);
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
@@ -55,9 +64,10 @@ export const getSettings = async () => {
 // Study Sessions
 export const saveSession = async (session) => {
   try {
+    const userId = getUserId();
     const sessionData = {
       ...session,
-      user_id: USER_ID,
+      user_id: userId,
       timestamp: new Date().toISOString()
     };
     
@@ -72,7 +82,8 @@ export const saveSession = async (session) => {
 
 export const getSessions = async () => {
   try {
-    const q = query(collection(db, 'pomodoro_sessions'), where('user_id', '==', USER_ID));
+    const userId = getUserId();
+    const q = query(collection(db, 'pomodoro_sessions'), where('user_id', '==', userId));
     const querySnapshot = await getDocs(q);
     
     const sessions = [];
@@ -90,9 +101,10 @@ export const getSessions = async () => {
 // Todos
 export const saveTodo = async (todo) => {
   try {
+    const userId = getUserId();
     const todoData = {
       ...todo,
-      user_id: USER_ID,
+      user_id: userId,
       created_at: todo.created_at || new Date().toISOString()
     };
     
@@ -107,7 +119,8 @@ export const saveTodo = async (todo) => {
 
 export const getTodos = async () => {
   try {
-    const q = query(collection(db, 'todos'), where('user_id', '==', USER_ID));
+    const userId = getUserId();
+    const q = query(collection(db, 'todos'), where('user_id', '==', userId));
     const querySnapshot = await getDocs(q);
     
     const todos = [];
@@ -145,7 +158,8 @@ export const deleteTodo = async (todoId) => {
 
 // Real-time listeners
 export const subscribeToSettings = (callback) => {
-  const docRef = doc(db, 'settings', USER_ID);
+  const userId = getUserId();
+  const docRef = doc(db, 'settings', userId);
   return onSnapshot(docRef, (doc) => {
     if (doc.exists()) {
       callback(doc.data());
@@ -154,7 +168,8 @@ export const subscribeToSettings = (callback) => {
 };
 
 export const subscribeToTodos = (callback) => {
-  const q = query(collection(db, 'todos'), where('user_id', '==', USER_ID));
+  const userId = getUserId();
+  const q = query(collection(db, 'todos'), where('user_id', '==', userId));
   return onSnapshot(q, (querySnapshot) => {
     const todos = [];
     querySnapshot.forEach((doc) => {
