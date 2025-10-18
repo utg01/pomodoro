@@ -94,32 +94,42 @@ const Timer = () => {
     };
   }, [isRunning]);
 
-  const saveStudySession = (minutes) => {
-    const sessions = getStorageData('studySessions') || [];
-    const newSession = {
-      id: Date.now(),
-      date: new Date().toISOString(),
-      duration: minutes,
-      type: timerMode,
-      preset: selectedPreset
-    };
-    sessions.push(newSession);
-    saveStorageData('studySessions', sessions);
+  const saveStudySession = async (minutes) => {
+    if (!user) return;
     
-    const lastDate = settings.lastStudyDate;
-    const todayStr = new Date().toDateString();
-    
-    if (!lastDate || new Date(lastDate).toDateString() !== todayStr) {
-      const yesterday = new Date(Date.now() - 86400000).toDateString();
-      const isConsecutive = lastDate && new Date(lastDate).toDateString() === yesterday;
-      
-      const newSettings = {
-        ...settings,
-        currentStreak: isConsecutive ? settings.currentStreak + 1 : 1,
-        lastStudyDate: new Date().toISOString()
+    try {
+      const newSession = {
+        id: `session_${Date.now()}`,
+        date: new Date().toISOString(),
+        duration: minutes,
+        type: timerMode,
+        preset: selectedPreset
       };
-      setSettings(newSettings);
-      saveStorageData('settings', newSettings);
+      
+      await saveSession(newSession);
+      
+      const lastDate = settings.lastStudyDate;
+      const todayStr = new Date().toDateString();
+      
+      if (!lastDate || new Date(lastDate).toDateString() !== todayStr) {
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        const isConsecutive = lastDate && new Date(lastDate).toDateString() === yesterday;
+        
+        const newSettings = {
+          ...settings,
+          currentStreak: isConsecutive ? settings.currentStreak + 1 : 1,
+          lastStudyDate: new Date().toISOString()
+        };
+        setSettings(newSettings);
+        await saveSettings(newSettings);
+      }
+    } catch (error) {
+      console.error('Error saving session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save session",
+        variant: "destructive"
+      });
     }
   };
 
