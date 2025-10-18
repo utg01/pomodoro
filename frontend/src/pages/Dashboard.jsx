@@ -76,8 +76,10 @@ const Dashboard = () => {
     }
     setSelectedPreset(presetId);
     const preset = presets.find(p => p.id === presetId);
-    setTimeLeft(preset.work * 60);
-    setTimerMode('work');
+    if (preset) {
+      setTimeLeft(preset.work * 60);
+      setTimerMode('work');
+    }
   };
 
   useEffect(() => {
