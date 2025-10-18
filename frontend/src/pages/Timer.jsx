@@ -287,10 +287,10 @@ const Timer = () => {
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-7xl font-bold text-white mb-2 font-mono tracking-tight glow-text">
+                  <div className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-2 font-mono tracking-tight glow-text">
                     {formatTime(timeLeft)}
                   </div>
-                  <div className="text-sm text-gray-500 font-mono">
+                  <div className="text-xs sm:text-sm text-gray-500 font-mono">
                     Session #{sessionsCompleted + 1}
                   </div>
                 </div>
@@ -298,11 +298,11 @@ const Timer = () => {
             </div>
 
             {/* Controls */}
-            <div className="flex justify-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
               <Button
                 size="lg"
                 onClick={toggleTimer}
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-12 py-7 text-lg font-medium rounded-xl shadow-lg shadow-cyan-500/30 border-0"
+                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-8 sm:px-12 py-6 sm:py-7 text-base sm:text-lg font-medium rounded-xl shadow-lg shadow-cyan-500/30 border-0"
               >
                 {isRunning ? (
                   <><Pause className="w-6 h-6 mr-2" /> Pause</>
