@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/card';
-import { BarChart3, Clock, TrendingUp, Calendar } from 'lucide-react';
+import { Clock, TrendingUp, Calendar, Activity } from 'lucide-react';
 import { getStorageData } from '../utils/storage';
 
 const Statistics = () => {
   const [sessions, setSessions] = useState([]);
-  const [timeRange, setTimeRange] = useState('week'); // week, month, all
+  const [timeRange, setTimeRange] = useState('week');
 
   useEffect(() => {
     const savedSessions = getStorageData('studySessions') || [];
@@ -33,12 +33,10 @@ const Statistics = () => {
   const totalSessions = filteredSessions.length;
   const avgSessionLength = totalSessions > 0 ? (totalMinutes / totalSessions).toFixed(0) : 0;
 
-  // Get daily breakdown for the chart
   const getDailyData = () => {
     const dailyMap = {};
     const days = timeRange === 'week' ? 7 : timeRange === 'month' ? 30 : 90;
     
-    // Initialize all days
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
@@ -46,7 +44,6 @@ const Statistics = () => {
       dailyMap[dateStr] = 0;
     }
     
-    // Fill with actual data
     filteredSessions.forEach(session => {
       const dateStr = new Date(session.date).toDateString();
       if (dailyMap.hasOwnProperty(dateStr)) {
@@ -64,12 +61,11 @@ const Statistics = () => {
   const maxMinutes = Math.max(...dailyData.map(d => d.minutes), 1);
 
   return (
-    <div className="p-8">
+    <div className="p-8 relative z-0">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">Statistics</h1>
-          <p className="text-slate-500">Track your study progress over time</p>
+          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Statistics</h1>
+          <p className="text-gray-400 font-mono text-sm">Track your productivity journey</p>
         </div>
 
         {/* Time Range Filter */}
@@ -78,10 +74,10 @@ const Statistics = () => {
             <button
               key={range}
               onClick={() => setTimeRange(range)}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-6 py-2 rounded-lg font-medium font-mono transition-all ${
                 timeRange === range
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30'
+                  : 'bg-[#13131a]/50 text-gray-400 border border-[#22d3ee]/20 hover:border-[#22d3ee]/40'
               }`}
             >
               {range === 'week' ? 'Last 7 Days' : range === 'month' ? 'Last 30 Days' : 'All Time'}
@@ -91,64 +87,64 @@ const Statistics = () => {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-6 mb-8">
-          <Card className="p-6 bg-white border-slate-200">
+          <Card className="p-6 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                <Clock className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-cyan-500/10 rounded-xl flex items-center justify-center border border-cyan-500/30">
+                <Clock className="w-6 h-6 text-cyan-400" />
               </div>
               <div>
-                <p className="text-sm text-slate-500 font-medium">Total Study Time</p>
-                <p className="text-2xl font-bold text-slate-800">{totalHours}h</p>
+                <p className="text-sm text-gray-400 font-mono mb-1">Total Study Time</p>
+                <p className="text-2xl font-bold text-white">{totalHours}<span className="text-sm text-gray-500">h</span></p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-white border-slate-200">
+          <Card className="p-6 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-emerald-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-xl flex items-center justify-center border border-green-500/30">
+                <Activity className="w-6 h-6 text-green-400" />
               </div>
               <div>
-                <p className="text-sm text-slate-500 font-medium">Sessions Completed</p>
-                <p className="text-2xl font-bold text-slate-800">{totalSessions}</p>
+                <p className="text-sm text-gray-400 font-mono mb-1">Sessions Completed</p>
+                <p className="text-2xl font-bold text-white">{totalSessions}</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-white border-slate-200">
+          <Card className="p-6 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-500/10 rounded-xl flex items-center justify-center border border-purple-500/30">
+                <TrendingUp className="w-6 h-6 text-purple-400" />
               </div>
               <div>
-                <p className="text-sm text-slate-500 font-medium">Avg Session</p>
-                <p className="text-2xl font-bold text-slate-800">{avgSessionLength}m</p>
+                <p className="text-sm text-gray-400 font-mono mb-1">Avg Session</p>
+                <p className="text-2xl font-bold text-white">{avgSessionLength}<span className="text-sm text-gray-500">m</span></p>
               </div>
             </div>
           </Card>
         </div>
 
         {/* Chart */}
-        <Card className="p-8 bg-white border-slate-200">
+        <Card className="p-8 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20">
           <div className="flex items-center gap-3 mb-6">
-            <Calendar className="w-5 h-5 text-slate-600" />
-            <h2 className="text-xl font-semibold text-slate-800">Daily Study Time</h2>
+            <Calendar className="w-5 h-5 text-cyan-400" />
+            <h2 className="text-xl font-semibold text-white">Daily Study Time</h2>
           </div>
           
           <div className="space-y-3">
             {dailyData.map((day, index) => (
               <div key={index} className="flex items-center gap-4">
-                <div className="w-20 text-sm text-slate-600 font-medium">
+                <div className="w-20 text-sm text-gray-400 font-mono font-medium">
                   {day.date}
                 </div>
-                <div className="flex-1 h-10 bg-slate-100 rounded-lg overflow-hidden relative">
+                <div className="flex-1 h-10 bg-[#1a1a24] rounded-lg overflow-hidden relative border border-[#22d3ee]/10">
                   <div
-                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg transition-all duration-500 flex items-center px-3"
+                    className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg transition-all duration-500 flex items-center px-3"
                     style={{ width: `${(day.minutes / maxMinutes) * 100}%` }}
                   >
                     {day.minutes > 0 && (
-                      <span className="text-sm font-semibold text-white">
-                        {day.minutes} min
+                      <span className="text-sm font-semibold text-white font-mono">
+                        {day.minutes}m
                       </span>
                     )}
                   </div>
@@ -159,29 +155,29 @@ const Statistics = () => {
           
           {dailyData.every(d => d.minutes === 0) && (
             <div className="text-center py-12">
-              <p className="text-slate-400">No study sessions recorded yet. Start a timer to see your progress!</p>
+              <p className="text-gray-500 font-mono">No study sessions recorded yet</p>
             </div>
           )}
         </Card>
 
         {/* Recent Sessions */}
-        <Card className="p-8 bg-white border-slate-200 mt-6">
-          <h2 className="text-xl font-semibold text-slate-800 mb-6">Recent Sessions</h2>
+        <Card className="p-8 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20 mt-6">
+          <h2 className="text-xl font-semibold text-white mb-6">Recent Sessions</h2>
           <div className="space-y-3">
             {filteredSessions.slice(-10).reverse().map((session, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+              <div key={index} className="flex items-center justify-between p-4 bg-[#1a1a24] rounded-lg border border-[#22d3ee]/10">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-emerald-600" />
+                  <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center border border-cyan-500/30">
+                    <Clock className="w-5 h-5 text-cyan-400" />
                   </div>
                   <div>
-                    <p className="font-medium text-slate-800">{session.duration} minutes</p>
-                    <p className="text-sm text-slate-500">
+                    <p className="font-medium text-white font-mono">{session.duration} minutes</p>
+                    <p className="text-sm text-gray-500 font-mono">
                       {new Date(session.date).toLocaleDateString()} at {new Date(session.date).toLocaleTimeString()}
                     </p>
                   </div>
                 </div>
-                <div className="px-3 py-1 bg-white rounded-full text-xs font-medium text-slate-600 border border-slate-200">
+                <div className="px-3 py-1 bg-cyan-500/10 rounded-full text-xs font-mono text-cyan-400 border border-cyan-500/30">
                   {session.preset || 'classic'}
                 </div>
               </div>
@@ -189,7 +185,7 @@ const Statistics = () => {
             
             {filteredSessions.length === 0 && (
               <div className="text-center py-8">
-                <p className="text-slate-400">No sessions recorded in this time period</p>
+                <p className="text-gray-500 font-mono">No sessions recorded in this time period</p>
               </div>
             )}
           </div>
