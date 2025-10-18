@@ -145,9 +145,9 @@ const Dashboard = () => {
       </div>
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Weekly Activity - Takes 2 columns */}
-        <div className="col-span-2">
+        <div className="lg:col-span-2">
           <Card className="p-6 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20 h-full">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
