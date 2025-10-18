@@ -324,7 +324,7 @@ const Timer = () => {
         </Card>
 
         {/* Session Info */}
-        <div className="mt-6 grid grid-cols-3 gap-4">
+        <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4">
           <Card className="p-4 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20 text-center">
             <p className="text-sm text-gray-400 font-mono mb-1">WORK</p>
             <p className="text-2xl font-bold text-white font-mono">{getCurrentPreset().work}m</p>
