@@ -62,7 +62,7 @@ const Dashboard = () => {
   };
 
   const getCurrentPreset = () => {
-    return presets.find(p => p.id === selectedPreset) || presets[0];
+    return presets.find(p => p.id === selectedPreset) || presets[0] || { work: 25, shortBreak: 5, longBreak: 15 };
   };
 
   const handlePresetChange = (presetId) => {
