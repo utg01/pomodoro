@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Check, Calendar, Flag } from 'lucide-react';
+import { Plus, Trash2, Check, Calendar, Flag, Filter } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -91,20 +91,20 @@ const TodoList = () => {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'high': return 'text-red-600 bg-red-50';
-      case 'medium': return 'text-amber-600 bg-amber-50';
-      case 'low': return 'text-blue-600 bg-blue-50';
-      default: return 'text-slate-600 bg-slate-50';
+      case 'high': return 'text-red-400 bg-red-500/10 border-red-500/30';
+      case 'medium': return 'text-amber-400 bg-amber-500/10 border-amber-500/30';
+      case 'low': return 'text-blue-400 bg-blue-500/10 border-blue-500/30';
+      default: return 'text-gray-400 bg-gray-500/10 border-gray-500/30';
     }
   };
 
   const getCategoryColor = (category) => {
     switch (category) {
-      case 'study': return 'bg-emerald-100 text-emerald-700';
-      case 'work': return 'bg-blue-100 text-blue-700';
-      case 'personal': return 'bg-purple-100 text-purple-700';
-      case 'other': return 'bg-slate-100 text-slate-700';
-      default: return 'bg-slate-100 text-slate-700';
+      case 'study': return 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30';
+      case 'work': return 'bg-blue-500/10 text-blue-400 border-blue-500/30';
+      case 'personal': return 'bg-purple-500/10 text-purple-400 border-purple-500/30';
+      case 'other': return 'bg-gray-500/10 text-gray-400 border-gray-500/30';
+      default: return 'bg-gray-500/10 text-gray-400 border-gray-500/30';
     }
   };
 
@@ -118,101 +118,101 @@ const TodoList = () => {
   const priorities = ['all', 'high', 'medium', 'low'];
 
   return (
-    <div className="p-8">
+    <div className="p-8 relative z-0">
       <Toaster />
       
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">Tasks</h1>
-            <p className="text-slate-500">Manage your study and work tasks</p>
+            <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Tasks</h1>
+            <p className="text-gray-400 font-mono text-sm">Organize your workflow</p>
           </div>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 border-0 shadow-lg shadow-cyan-500/30">
                 <Plus className="w-5 h-5 mr-2" />
                 Add Task
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md bg-[#13131a] border-[#22d3ee]/20">
               <DialogHeader>
-                <DialogTitle>Create New Task</DialogTitle>
+                <DialogTitle className="text-white">Create New Task</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div>
-                  <Label htmlFor="title">Title</Label>
+                  <Label htmlFor="title" className="text-gray-300">Title</Label>
                   <Input
                     id="title"
                     placeholder="Enter task title"
                     value={newTodo.title}
                     onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
-                    className="mt-1"
+                    className="mt-1 bg-[#1a1a24] border-[#22d3ee]/20 text-white"
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description" className="text-gray-300">Description</Label>
                   <Textarea
                     id="description"
                     placeholder="Add details about your task"
                     value={newTodo.description}
                     onChange={(e) => setNewTodo({ ...newTodo, description: e.target.value })}
-                    className="mt-1"
+                    className="mt-1 bg-[#1a1a24] border-[#22d3ee]/20 text-white"
                     rows={3}
                   />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Category</Label>
+                    <Label className="text-gray-300">Category</Label>
                     <Select
                       value={newTodo.category}
                       onValueChange={(value) => setNewTodo({ ...newTodo, category: value })}
                     >
-                      <SelectTrigger className="mt-1">
+                      <SelectTrigger className="mt-1 bg-[#1a1a24] border-[#22d3ee]/20 text-white">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="study">Study</SelectItem>
-                        <SelectItem value="work">Work</SelectItem>
-                        <SelectItem value="personal">Personal</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                      <SelectContent className="bg-[#13131a] border-[#22d3ee]/20">
+                        <SelectItem value="study" className="text-white">Study</SelectItem>
+                        <SelectItem value="work" className="text-white">Work</SelectItem>
+                        <SelectItem value="personal" className="text-white">Personal</SelectItem>
+                        <SelectItem value="other" className="text-white">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   
                   <div>
-                    <Label>Priority</Label>
+                    <Label className="text-gray-300">Priority</Label>
                     <Select
                       value={newTodo.priority}
                       onValueChange={(value) => setNewTodo({ ...newTodo, priority: value })}
                     >
-                      <SelectTrigger className="mt-1">
+                      <SelectTrigger className="mt-1 bg-[#1a1a24] border-[#22d3ee]/20 text-white">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="low">Low</SelectItem>
+                      <SelectContent className="bg-[#13131a] border-[#22d3ee]/20">
+                        <SelectItem value="high" className="text-white">High</SelectItem>
+                        <SelectItem value="medium" className="text-white">Medium</SelectItem>
+                        <SelectItem value="low" className="text-white">Low</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 
                 <div>
-                  <Label htmlFor="dueDate">Due Date</Label>
+                  <Label htmlFor="dueDate" className="text-gray-300">Due Date</Label>
                   <Input
                     id="dueDate"
                     type="date"
                     value={newTodo.dueDate}
                     onChange={(e) => setNewTodo({ ...newTodo, dueDate: e.target.value })}
-                    className="mt-1"
+                    className="mt-1 bg-[#1a1a24] border-[#22d3ee]/20 text-white"
                   />
                 </div>
                 
-                <Button onClick={addTodo} className="w-full bg-emerald-600 hover:bg-emerald-700">
+                <Button onClick={addTodo} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 border-0">
                   Create Task
                 </Button>
               </div>
@@ -221,109 +221,115 @@ const TodoList = () => {
         </div>
 
         {/* Filters */}
-        <Card className="p-4 mb-6 bg-white border-slate-200">
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Label className="text-xs text-slate-500 mb-2 block">Category</Label>
-              <div className="flex gap-2">
-                {categories.map(cat => (
-                  <Button
-                    key={cat}
-                    variant={filterCategory === cat ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilterCategory(cat)}
-                    className={filterCategory === cat ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
-                  >
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </Button>
-                ))}
-              </div>
+        <Card className="p-5 mb-6 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-cyan-400" />
+              <span className="text-sm text-gray-400 font-mono">FILTERS</span>
             </div>
-            
-            <div className="flex-1">
-              <Label className="text-xs text-slate-500 mb-2 block">Priority</Label>
-              <div className="flex gap-2">
-                {priorities.map(pri => (
-                  <Button
-                    key={pri}
-                    variant={filterPriority === pri ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilterPriority(pri)}
-                    className={filterPriority === pri ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
-                  >
-                    {pri.charAt(0).toUpperCase() + pri.slice(1)}
-                  </Button>
-                ))}
-              </div>
+            <div className="flex gap-2">
+              {categories.map(cat => (
+                <Button
+                  key={cat}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFilterCategory(cat)}
+                  className={`font-mono ${
+                    filterCategory === cat
+                      ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30'
+                      : 'bg-[#1a1a24] text-gray-400 border-[#22d3ee]/10 hover:border-[#22d3ee]/30'
+                  }`}
+                >
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </Button>
+              ))}
+            </div>
+            <div className="h-6 w-px bg-[#22d3ee]/20"></div>
+            <div className="flex gap-2">
+              {priorities.map(pri => (
+                <Button
+                  key={pri}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFilterPriority(pri)}
+                  className={`font-mono ${
+                    filterPriority === pri
+                      ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30'
+                      : 'bg-[#1a1a24] text-gray-400 border-[#22d3ee]/10 hover:border-[#22d3ee]/30'
+                  }`}
+                >
+                  {pri.charAt(0).toUpperCase() + pri.slice(1)}
+                </Button>
+              ))}
             </div>
           </div>
         </Card>
 
         {/* Task Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <Card className="p-4 bg-white border-slate-200">
-            <p className="text-sm text-slate-500">Total Tasks</p>
-            <p className="text-2xl font-bold text-slate-800">{todos.length}</p>
+          <Card className="p-4 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20">
+            <p className="text-sm text-gray-400 font-mono mb-1">TOTAL</p>
+            <p className="text-3xl font-bold text-white">{todos.length}</p>
           </Card>
-          <Card className="p-4 bg-white border-slate-200">
-            <p className="text-sm text-slate-500">Completed</p>
-            <p className="text-2xl font-bold text-emerald-600">{todos.filter(t => t.completed).length}</p>
+          <Card className="p-4 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20">
+            <p className="text-sm text-gray-400 font-mono mb-1">COMPLETED</p>
+            <p className="text-3xl font-bold text-green-400">{todos.filter(t => t.completed).length}</p>
           </Card>
-          <Card className="p-4 bg-white border-slate-200">
-            <p className="text-sm text-slate-500">Pending</p>
-            <p className="text-2xl font-bold text-amber-600">{todos.filter(t => !t.completed).length}</p>
+          <Card className="p-4 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20">
+            <p className="text-sm text-gray-400 font-mono mb-1">PENDING</p>
+            <p className="text-3xl font-bold text-amber-400">{todos.filter(t => !t.completed).length}</p>
           </Card>
         </div>
 
         {/* Task List */}
         <div className="space-y-3">
           {filteredTodos.length === 0 ? (
-            <Card className="p-12 bg-white border-slate-200 text-center">
-              <p className="text-slate-400 text-lg">No tasks found. Create your first task to get started!</p>
+            <Card className="p-12 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20 text-center">
+              <p className="text-gray-500 text-lg font-mono">No tasks found</p>
             </Card>
           ) : (
             filteredTodos.map(todo => (
               <Card
                 key={todo.id}
-                className={`p-5 bg-white border-slate-200 hover:shadow-md transition-shadow ${
-                  todo.completed ? 'opacity-60' : ''
+                className={`p-5 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20 hover:border-[#22d3ee]/40 transition-all ${
+                  todo.completed ? 'opacity-50' : ''
                 }`}
               >
                 <div className="flex items-start gap-4">
                   <button
                     onClick={() => toggleTodo(todo.id)}
-                    className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                    className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
                       todo.completed
-                        ? 'bg-emerald-600 border-emerald-600'
-                        : 'border-slate-300 hover:border-emerald-600'
+                        ? 'bg-gradient-to-br from-cyan-500 to-blue-500 border-transparent'
+                        : 'border-[#22d3ee]/30 hover:border-[#22d3ee]/60'
                     }`}
                   >
                     {todo.completed && <Check className="w-3 h-3 text-white" />}
                   </button>
                   
                   <div className="flex-1">
-                    <h3 className={`text-lg font-semibold text-slate-800 mb-1 ${
-                      todo.completed ? 'line-through' : ''
+                    <h3 className={`text-lg font-semibold text-white mb-1 ${
+                      todo.completed ? 'line-through text-gray-500' : ''
                     }`}>
                       {todo.title}
                     </h3>
                     
                     {todo.description && (
-                      <p className="text-slate-600 text-sm mb-3">{todo.description}</p>
+                      <p className="text-gray-400 text-sm mb-3 font-mono">{todo.description}</p>
                     )}
                     
                     <div className="flex items-center gap-3">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(todo.category)}`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-mono border ${getCategoryColor(todo.category)}`}>
                         {todo.category}
                       </span>
                       
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getPriorityColor(todo.priority)}`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-mono flex items-center gap-1 border ${getPriorityColor(todo.priority)}`}>
                         <Flag className="w-3 h-3" />
                         {todo.priority}
                       </span>
                       
                       {todo.dueDate && (
-                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                        <span className="text-xs text-gray-500 flex items-center gap-1 font-mono">
                           <Calendar className="w-3 h-3" />
                           {new Date(todo.dueDate).toLocaleDateString()}
                         </span>
@@ -335,7 +341,7 @@ const TodoList = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => deleteTodo(todo.id)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
