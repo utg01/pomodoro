@@ -254,8 +254,8 @@ const Timer = () => {
             </div>
 
             {/* Timer Display */}
-            <div className="relative mb-12 flex items-center justify-center">
-              <svg className="w-80 h-80" viewBox="0 0 200 200">
+            <div className="relative mb-8 sm:mb-12 flex items-center justify-center">
+              <svg className="w-64 h-64 sm:w-80 sm:h-80" viewBox="0 0 200 200">
                 <circle
                   cx="100"
                   cy="100"
