@@ -60,16 +60,6 @@
     "build": "craco build",
     "test": "craco test"
   },
-  "resolutions": {
-    "ajv": "^7.2.4",
-    "ajv-keywords": "^4.0.0",
-    "schema-utils": "^4.0.0"
-  },
-  "overrides": {
-    "ajv": "^7.2.4",
-    "ajv-keywords": "^4.0.0",
-    "schema-utils": "^4.0.0"
-  },
   "browserslist": {
     "production": [
       ">0.2%",
