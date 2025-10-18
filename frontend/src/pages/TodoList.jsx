@@ -247,20 +247,20 @@ const TodoList = () => {
         </div>
 
         {/* Filters */}
-        <Card className="p-5 mb-6 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20">
-          <div className="flex items-center gap-6">
+        <Card className="p-4 sm:p-5 mb-6 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20 overflow-x-auto">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 min-w-max sm:min-w-0">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-cyan-400" />
-              <span className="text-sm text-gray-400 font-mono">FILTERS</span>
+              <span className="text-xs sm:text-sm text-gray-400 font-mono">FILTERS</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {categories.map(cat => (
                 <Button
                   key={cat}
                   variant="outline"
                   size="sm"
                   onClick={() => setFilterCategory(cat)}
-                  className={`font-mono ${
+                  className={`font-mono text-xs ${
                     filterCategory === cat
                       ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30'
                       : 'bg-[#1a1a24] text-gray-400 border-[#22d3ee]/10 hover:border-[#22d3ee]/30'
@@ -270,15 +270,15 @@ const TodoList = () => {
                 </Button>
               ))}
             </div>
-            <div className="h-6 w-px bg-[#22d3ee]/20"></div>
-            <div className="flex gap-2">
+            <div className="hidden sm:block h-6 w-px bg-[#22d3ee]/20"></div>
+            <div className="flex flex-wrap gap-2">
               {priorities.map(pri => (
                 <Button
                   key={pri}
                   variant="outline"
                   size="sm"
                   onClick={() => setFilterPriority(pri)}
-                  className={`font-mono ${
+                  className={`font-mono text-xs ${
                     filterPriority === pri
                       ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30'
                       : 'bg-[#1a1a24] text-gray-400 border-[#22d3ee]/10 hover:border-[#22d3ee]/30'
@@ -292,7 +292,7 @@ const TodoList = () => {
         </Card>
 
         {/* Task Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
           <Card className="p-4 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20">
             <p className="text-sm text-gray-400 font-mono mb-1">TOTAL</p>
             <p className="text-3xl font-bold text-white">{todos.length}</p>
