@@ -45,3 +45,7 @@ build/
 dist/
 *.min.js
 *.min.css
+-e 
+# Environment files
+*.env
+*.env.*
