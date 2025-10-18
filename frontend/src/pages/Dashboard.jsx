@@ -157,16 +157,16 @@ const Dashboard = () => {
                     {day.day}
                   </div>
                   <div className="flex-1 h-10 bg-[#1a1a24] rounded-lg overflow-hidden relative border border-[#22d3ee]/10">
-                    <div
-                      className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg transition-all duration-500 flex items-center px-3"
-                      style={{ width: `${(day.minutes / maxWeeklyMinutes) * 100}%` }}
-                    >
-                      {day.minutes > 0 && (
+                    {day.minutes > 0 && (
+                      <div
+                        className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg transition-all duration-500 flex items-center px-3"
+                        style={{ width: `${(day.minutes / maxWeeklyMinutes) * 100}%` }}
+                      >
                         <span className="text-sm font-semibold text-white font-mono">
                           {day.minutes}m
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
