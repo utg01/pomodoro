@@ -31,7 +31,8 @@
     "@radix-ui/react-toggle": "^1.1.6",
     "@radix-ui/react-toggle-group": "^1.1.7",
     "@radix-ui/react-tooltip": "^1.2.4",
-    "ajv": "6",
+    "ajv": "6.12.6",
+    "ajv-keywords": "3.5.2",
     "axios": "^1.8.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -62,7 +63,14 @@
     "test": "craco test"
   },
   "resolutions": {
-    "ajv": "^6.12.6"
+    "ajv": "6.12.6",
+    "ajv-keywords": "3.5.2",
+    "schema-utils": "3.1.1"
+  },
+  "overrides": {
+    "ajv": "6.12.6",
+    "ajv-keywords": "3.5.2",
+    "schema-utils": "3.1.1"
   },
   "browserslist": {
     "production": [
@@ -78,7 +86,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@craco/craco": "^7.1.0",
+    "@craco/craco": "6.4.3",
     "@eslint/js": "9.23.0",
     "autoprefixer": "^10.4.20",
     "eslint": "9.23.0",
@@ -87,7 +95,11 @@
     "eslint-plugin-react": "7.37.4",
     "globals": "15.15.0",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17"
+    "schema-utils": "3.1.1",
+    "tailwindcss": "^3.4.17",
+    "terser-webpack-plugin": "4.2.3",
+    "webpack": "4.44.2",
+    "webpack-cli": "3.3.12"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
