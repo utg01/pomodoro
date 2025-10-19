@@ -188,7 +188,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Dynamic daily goal bar with time comparison"
+    - "Custom/manual timer option on Timer page"
+    - "Timer accuracy fix"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -196,16 +197,27 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: |
-      NEW FEATURE IMPLEMENTED ✅
+      NEW FEATURES IMPLEMENTED ✅
       
-      Dynamic Daily Goal Bar:
-      - Updated Dashboard.jsx to show time studied vs daily goal in format "X/Y" (e.g., "30/120m")
-      - Progress bar dynamically fills based on percentage: (todayStudyTime / dailyGoal) * 100
-      - If user studied 30 minutes with 120-minute goal, bar shows "30/120m" and fills 25%
-      - Visual progress bar uses gradient (cyan to blue) and animates with transition-all duration-500
+      1. Custom/Manual Timer Option:
+         - Added "Custom" button to preset selector on Timer page
+         - Displays input fields for Work, Short Break, and Long Break durations (1-180 minutes)
+         - Users can set custom timer directly without going to Settings
+         - Input fields are disabled while timer is running to prevent changes mid-session
+         - Custom timer values are preserved when switching between presets
+      
+      2. Timer Accuracy Fix:
+         - Fixed timer running slow issue by using timestamp-based calculation
+         - Timer now uses Date.now() with endTimeRef to calculate exact remaining time
+         - Changed interval from 1000ms to 100ms for more accurate updates
+         - Timer completes exactly at set time (no drift)
+         - Saves actual elapsed time when work sessions complete
       
       TESTING REQUIRED:
-      - Verify daily goal card displays correct time format (X/Y minutes)
-      - Test progress bar fills correctly based on study time vs goal
-      - Test with different scenarios (0%, 25%, 50%, 100%, >100%)
-      - Ensure clicking card still navigates to settings page
+      - Test Custom timer: set 20 minutes, verify it completes in exactly 20 minutes
+      - Test preset timers still work correctly
+      - Test switching between Custom and presets
+      - Test timer accuracy with different durations (5min, 10min, 25min, etc.)
+      - Verify timer can't be changed while running
+      - Test pause/resume functionality
+      - Verify study sessions save correct duration to Firebase
