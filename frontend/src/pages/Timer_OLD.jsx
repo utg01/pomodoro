@@ -1,32 +1,259 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Play, Pause, RotateCcw, Zap, Clock } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Input } from '../components/ui/input';
+import { useToast } from '../hooks/use-toast';
 import { Toaster } from '../components/ui/toaster';
-import { useTimer } from '../contexts/TimerContext';
+import { getSettings, saveSettings, saveSession } from '../utils/firestoreService';
+import { useAuth } from '../contexts/AuthContext';
+import FloatingTimer from '../components/FloatingTimer';
 
 const Timer = () => {
-  const {
-    timerMode,
-    timeLeft,
-    isRunning,
-    sessionsCompleted,
-    selectedPreset,
-    presets,
-    customTimer,
-    toggleTimer,
-    resetTimer,
-    handlePresetChange,
-    handleCustomTimerChange,
-    getCurrentPreset
-  } = useTimer();
-
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [timerMode, setTimerMode] = useState('work');
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [isRunning, setIsRunning] = useState(false);
+  const [sessionsCompleted, setSessionsCompleted] = useState(0);
+  const intervalRef = useRef(null);
+  const [settings, setSettings] = useState({ dailyGoal: 120, currentStreak: 0 });
+  const [selectedPreset, setSelectedPreset] = useState('classic');
+  const [presets, setPresets] = useState([]);
+  const startTimeRef = useRef(null);
+  const endTimeRef = useRef(null);
+  const [customTimer, setCustomTimer] = useState({ work: 25, shortBreak: 5, longBreak: 15 });
   const [showCustomInput, setShowCustomInput] = useState(false);
+  const [showFloatingTimer, setShowFloatingTimer] = useState(false);
+  const [isTabVisible, setIsTabVisible] = useState(true);
 
-  const handlePresetClick = (presetId) => {
-    handlePresetChange(presetId);
-    setShowCustomInput(presetId === 'custom');
+  useEffect(() => {
+    const loadSettings = async () => {
+      if (!user) return;
+      
+      try {
+        const savedSettings = await getSettings();
+        if (savedSettings) {
+          setSettings(savedSettings);
+          setPresets(savedSettings.presets || [
+            { id: 'classic', name: 'Classic', work: 25, shortBreak: 5, longBreak: 15 },
+            { id: 'short', name: 'Short', work: 15, shortBreak: 3, longBreak: 10 },
+            { id: 'long', name: 'Deep', work: 50, shortBreak: 10, longBreak: 30 }
+          ]);
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error);
+      }
+    };
+    
+    loadSettings();
+  }, [user]);
+
+  // Page Visibility API - Show floating timer when tab is hidden
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const isVisible = document.visibilityState === 'visible';
+      setIsTabVisible(isVisible);
+      
+      // Show floating timer when tab is hidden and timer is running
+      if (!isVisible && isRunning) {
+        setShowFloatingTimer(true);
+      } else if (isVisible) {
+        setShowFloatingTimer(false);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isRunning]);
+
+  const getCurrentPreset = useCallback(() => {
+    if (selectedPreset === 'custom') {
+      return customTimer;
+    }
+    return presets.find(p => p.id === selectedPreset) || presets[0] || { work: 25, shortBreak: 5, longBreak: 15 };
+  }, [presets, selectedPreset, customTimer]);
+
+  const handlePresetChange = (presetId) => {
+    if (isRunning) {
+      toast({
+        title: "Timer is running",
+        description: "Please stop the timer before changing presets",
+        variant: "destructive"
+      });
+      return;
+    }
+    setSelectedPreset(presetId);
+    
+    if (presetId === 'custom') {
+      setShowCustomInput(true);
+      setTimeLeft(customTimer.work * 60);
+    } else {
+      setShowCustomInput(false);
+      const preset = presets.find(p => p.id === presetId);
+      if (preset) {
+        setTimeLeft(preset.work * 60);
+      }
+    }
+    setTimerMode('work');
+  };
+
+  const handleCustomTimerChange = (field, value) => {
+    const numValue = parseInt(value) || 0;
+    if (numValue < 1 || numValue > 180) {
+      toast({
+        title: "Invalid time",
+        description: "Please enter a value between 1 and 180 minutes",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const newCustomTimer = { ...customTimer, [field]: numValue };
+    setCustomTimer(newCustomTimer);
+    
+    if (field === 'work' && timerMode === 'work' && !isRunning) {
+      setTimeLeft(numValue * 60);
+    }
+  };
+
+  const saveStudySession = useCallback(async (minutes) => {
+    if (!user || minutes < 1) return;
+    
+    try {
+      const newSession = {
+        id: `session_${Date.now()}`,
+        date: new Date().toISOString(),
+        duration: minutes,
+        type: timerMode,
+        preset: selectedPreset,
+        timestamp: Date.now()
+      };
+      
+      await saveSession(newSession);
+      
+      const lastDate = settings.lastStudyDate;
+      const todayStr = new Date().toDateString();
+      
+      if (!lastDate || new Date(lastDate).toDateString() !== todayStr) {
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        const isConsecutive = lastDate && new Date(lastDate).toDateString() === yesterday;
+        
+        const newSettings = {
+          ...settings,
+          currentStreak: isConsecutive ? settings.currentStreak + 1 : 1,
+          lastStudyDate: new Date().toISOString()
+        };
+        setSettings(newSettings);
+        await saveSettings(newSettings);
+      }
+    } catch (error) {
+      console.error('Error saving session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save session",
+        variant: "destructive"
+      });
+    }
+  }, [user, timerMode, selectedPreset, settings, toast]);
+
+  const handleTimerComplete = useCallback(() => {
+    setIsRunning(false);
+    
+    const preset = getCurrentPreset();
+    
+    if (timerMode === 'work') {
+      setSessionsCompleted(prev => {
+        const newCount = prev + 1;
+        
+        const workMinutes = preset.work;
+        saveStudySession(workMinutes);
+        
+        if (newCount % 4 === 0) {
+          setTimerMode('longBreak');
+          setTimeLeft(preset.longBreak * 60);
+          toast({
+            title: "Great work!",
+            description: `Time for a ${preset.longBreak} minute long break`
+          });
+        } else {
+          setTimerMode('shortBreak');
+          setTimeLeft(preset.shortBreak * 60);
+          toast({
+            title: "Session complete!",
+            description: `Time for a ${preset.shortBreak} minute break`
+          });
+        }
+        
+        return newCount;
+      });
+    } else {
+      setTimerMode('work');
+      setTimeLeft(preset.work * 60);
+      toast({
+        title: "Break over!",
+        description: "Ready to focus again?"
+      });
+    }
+  }, [timerMode, presets, selectedPreset, saveStudySession, toast]);
+
+  useEffect(() => {
+    if (isRunning) {
+      const preset = getCurrentPreset();
+      const totalSeconds = timerMode === 'work' 
+        ? preset.work * 60 
+        : timerMode === 'shortBreak' 
+        ? preset.shortBreak * 60 
+        : preset.longBreak * 60;
+      
+      startTimeRef.current = Date.now();
+      endTimeRef.current = startTimeRef.current + (timeLeft * 1000);
+      
+      intervalRef.current = setInterval(() => {
+        const now = Date.now();
+        const remainingMs = endTimeRef.current - now;
+        
+        if (remainingMs <= 0) {
+          setTimeLeft(0);
+          handleTimerComplete();
+          return;
+        }
+        
+        setTimeLeft(Math.ceil(remainingMs / 1000));
+      }, 100); // Check every 100ms for better accuracy
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        
+        // Save partial work session when paused
+        if (timerMode === 'work' && startTimeRef.current) {
+          const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000 / 60);
+          if (elapsed >= 1) {
+            saveStudySession(elapsed);
+          }
+        }
+        startTimeRef.current = null;
+        endTimeRef.current = null;
+      }
+    }
+    
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isRunning, handleTimerComplete, timerMode, saveStudySession, getCurrentPreset]);
+
+  const toggleTimer = () => {
+    setIsRunning(!isRunning);
+  };
+
+  const resetTimer = () => {
+    setIsRunning(false);
+    const preset = getCurrentPreset();
+    setTimeLeft(preset.work * 60);
+    setTimerMode('work');
   };
 
   const formatTime = (seconds) => {
@@ -61,6 +288,20 @@ const Timer = () => {
     <div className="p-4 sm:p-6 md:p-8 relative z-0">
       <Toaster />
       
+      {/* Floating Timer - appears when tab is hidden */}
+      <FloatingTimer
+        isVisible={showFloatingTimer}
+        onClose={() => setShowFloatingTimer(false)}
+        timeLeft={timeLeft}
+        timerMode={timerMode}
+        isRunning={isRunning}
+        onMaximize={() => {
+          setShowFloatingTimer(false);
+          // Focus back on the timer tab
+          window.focus();
+        }}
+      />
+      
       <div className="mb-6 md:mb-8">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Pomodoro Timer</h1>
         <p className="text-gray-400 font-mono text-xs sm:text-sm">Deep focus starts here</p>
@@ -73,7 +314,7 @@ const Timer = () => {
             <Button
               key={preset.id}
               variant={selectedPreset === preset.id ? 'default' : 'outline'}
-              onClick={() => handlePresetClick(preset.id)}
+              onClick={() => handlePresetChange(preset.id)}
               className={`${
                 selectedPreset === preset.id
                   ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-transparent'
@@ -85,7 +326,7 @@ const Timer = () => {
           ))}
           <Button
             variant={selectedPreset === 'custom' ? 'default' : 'outline'}
-            onClick={() => handlePresetClick('custom')}
+            onClick={() => handlePresetChange('custom')}
             className={`${
               selectedPreset === 'custom'
                 ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-transparent'
