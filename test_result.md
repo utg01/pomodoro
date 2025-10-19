@@ -201,6 +201,21 @@ frontend:
         agent: "main"
         comment: "Refactored timer to use global TimerContext. Timer state now persists across all pages. Created GlobalFloatingTimer that shows when: (1) browser tab is switched OR (2) user navigates away from timer page. Timer continues running regardless of current page. FloatingTimer appears on Dashboard, TodoList, Statistics, Settings when timer is active. Maximize button navigates back to Timer page."
 
+  - task: "Make Statistics page progress bars dynamic (relative to daily goal)"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/Statistics.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User requested progress bars on Statistics page to be dynamic like Dashboard page, showing progress relative to daily goal instead of relative to max value in range."
+      - working: true
+        agent: "main"
+        comment: "Updated Statistics.jsx to use daily goal for progress bar calculation. Now imports getSettings, loads dailyGoal setting, and calculates progress bar width as (day.minutes / settings.dailyGoal) * 100, capped at 100%. This matches Dashboard's dynamic Daily Goal card behavior where bars show actual progress toward goal."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
