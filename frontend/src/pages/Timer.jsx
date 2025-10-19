@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Pause, RotateCcw, Zap } from 'lucide-react';
+import { Play, Pause, RotateCcw, Zap, Clock } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import { Input } from '../components/ui/input';
 import { useToast } from '../hooks/use-toast';
 import { Toaster } from '../components/ui/toaster';
 import { getSettings, saveSettings, saveSession } from '../utils/firestoreService';
@@ -19,6 +20,9 @@ const Timer = () => {
   const [selectedPreset, setSelectedPreset] = useState('classic');
   const [presets, setPresets] = useState([]);
   const startTimeRef = useRef(null);
+  const endTimeRef = useRef(null);
+  const [customTimer, setCustomTimer] = useState({ work: 25, shortBreak: 5, longBreak: 15 });
+  const [showCustomInput, setShowCustomInput] = useState(false);
 
   useEffect(() => {
     const loadSettings = async () => {
