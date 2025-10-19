@@ -7,6 +7,7 @@ import { useToast } from '../hooks/use-toast';
 import { Toaster } from '../components/ui/toaster';
 import { getSettings, saveSettings, saveSession } from '../utils/firestoreService';
 import { useAuth } from '../contexts/AuthContext';
+import FloatingTimer from '../components/FloatingTimer';
 
 const Timer = () => {
   const { toast } = useToast();
@@ -23,6 +24,8 @@ const Timer = () => {
   const endTimeRef = useRef(null);
   const [customTimer, setCustomTimer] = useState({ work: 25, shortBreak: 5, longBreak: 15 });
   const [showCustomInput, setShowCustomInput] = useState(false);
+  const [showFloatingTimer, setShowFloatingTimer] = useState(false);
+  const [isTabVisible, setIsTabVisible] = useState(true);
 
   useEffect(() => {
     const loadSettings = async () => {
