@@ -75,7 +75,6 @@ const Statistics = () => {
   };
 
   const dailyData = getDailyData();
-  const maxMinutes = Math.max(...dailyData.map(d => d.minutes), 1);
 
   return (
     <div className="p-4 sm:p-6 md:p-8 relative z-0">
