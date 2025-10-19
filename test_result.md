@@ -183,7 +183,7 @@ frontend:
   - task: "Floating picture-in-picture timer window"
     implemented: true
     working: true
-    file: "frontend/src/components/FloatingTimer.jsx, frontend/src/pages/Timer.jsx"
+    file: "frontend/src/components/FloatingTimer.jsx, frontend/src/components/GlobalFloatingTimer.jsx, frontend/src/contexts/TimerContext.jsx, frontend/src/pages/Timer.jsx, frontend/src/App.js"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
@@ -194,6 +194,12 @@ frontend:
       - working: true
         agent: "main"
         comment: "Created FloatingTimer component with Page Visibility API integration. Window appears automatically when tab is hidden and timer is running. Features: draggable (click and drag), resizable (drag bottom-right corner), shows time/mode/status, has maximize and close buttons. Position and size constraints prevent window from going off-screen."
+      - working: false
+        agent: "user"
+        comment: "User reported timer should work consistently when switching tabs AND when navigating between pages within the app. Timer state should persist globally."
+      - working: true
+        agent: "main"
+        comment: "Refactored timer to use global TimerContext. Timer state now persists across all pages. Created GlobalFloatingTimer that shows when: (1) browser tab is switched OR (2) user navigates away from timer page. Timer continues running regardless of current page. FloatingTimer appears on Dashboard, TodoList, Statistics, Settings when timer is active. Maximize button navigates back to Timer page."
 
 metadata:
   created_by: "main_agent"
