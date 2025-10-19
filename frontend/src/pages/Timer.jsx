@@ -288,6 +288,20 @@ const Timer = () => {
     <div className="p-4 sm:p-6 md:p-8 relative z-0">
       <Toaster />
       
+      {/* Floating Timer - appears when tab is hidden */}
+      <FloatingTimer
+        isVisible={showFloatingTimer}
+        onClose={() => setShowFloatingTimer(false)}
+        timeLeft={timeLeft}
+        timerMode={timerMode}
+        isRunning={isRunning}
+        onMaximize={() => {
+          setShowFloatingTimer(false);
+          // Focus back on the timer tab
+          window.focus();
+        }}
+      />
+      
       <div className="mb-6 md:mb-8">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">Pomodoro Timer</h1>
         <p className="text-gray-400 font-mono text-xs sm:text-sm">Deep focus starts here</p>
