@@ -169,7 +169,7 @@ const Dashboard = () => {
                     {day.minutes > 0 && (
                       <div
                         className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg transition-all duration-500 flex items-center px-3"
-                        style={{ width: `${(day.minutes / maxWeeklyMinutes) * 100}%` }}
+                        style={{ width: `${Math.min((day.minutes / settings.dailyGoal) * 100, 100)}%` }}
                       >
                         <span className="text-sm font-semibold text-white font-mono">
                           {day.minutes}m
