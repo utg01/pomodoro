@@ -219,31 +219,53 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: |
-      NEW FEATURES IMPLEMENTED ✅
+      GLOBAL TIMER SYSTEM IMPLEMENTED ✅
       
-      1. Floating Picture-in-Picture Timer Window:
-         - Created FloatingTimer component that appears when switching browser tabs
-         - Uses Page Visibility API to detect tab visibility changes
-         - Automatically shows when timer is running and user switches tabs
-         - DRAGGABLE: Click and hold anywhere on the window to drag it
-         - RESIZABLE: Drag the bottom-right corner to resize (250-600px width, 150-400px height)
-         - Shows timer countdown, mode (Focus/Break), and running status
-         - Maximize button to return to main timer tab
-         - Close button to hide the floating window
-         - Window stays within screen bounds (can't be dragged off-screen)
-         - High z-index (9999) ensures it stays on top
+      1. TimerContext (Global Timer State):
+         - Created React Context to manage timer state globally
+         - Timer state persists across all pages (Dashboard, Timer, TodoList, Statistics, Settings)
+         - Timer continues running when navigating between pages
+         - No timer interruption when switching pages within app
+         - All timer logic centralized in TimerContext
       
-      2. Custom/Manual Timer (from previous task):
-         - Added "Custom" button with input fields on Timer page
-         - Users can set Work, Short Break, Long Break durations (1-180 min)
-         - Fixed timer accuracy using timestamp-based calculation
+      2. GlobalFloatingTimer Component:
+         - Mounted at App.js level (above all routes)
+         - Automatically shows floating timer when:
+           a) Browser tab is switched (Page Visibility API)
+           b) User navigates to any page OTHER than Timer page
+         - Automatically hides when:
+           a) User returns to Timer page
+           b) Timer is not running
+         - Works consistently across entire application
+      
+      3. Timer Page Refactored:
+         - Now uses useTimer() hook from TimerContext
+         - Removed local state management
+         - Lighter component focused on UI only
+         - Timer state preserved when leaving and returning to page
+      
+      4. Floating Timer Features (from previous):
+         - Draggable: Click and hold anywhere to move
+         - Resizable: Drag bottom-right corner (250-600px width, 150-400px height)
+         - Maximize button: Navigate back to Timer page
+         - Close button: Hide floating window
+         - Shows time, mode, and running status
+      
+      HOW IT WORKS:
+      - Start timer on Timer page
+      - Navigate to Dashboard/TodoList/Stats/Settings → floating timer appears
+      - Switch to another browser tab → floating timer appears
+      - Timer keeps running in background
+      - Return to Timer page → floating timer disappears, main timer visible
+      - Timer never stops or resets when changing pages/tabs
       
       TESTING REQUIRED:
-      - Start a timer and switch to a different browser tab → floating window should appear
-      - Test dragging the floating window around the screen
-      - Test resizing by dragging bottom-right corner
-      - Test maximize button (should focus back on timer tab and hide floating window)
-      - Test close button (should hide floating window)
-      - Verify floating window doesn't appear when timer is paused
-      - Test with different screen sizes
-      - Verify timer continues to update in floating window
+      - Start timer on Timer page
+      - Navigate to Dashboard → verify floating timer appears
+      - Navigate to TodoList → verify timer still running with floating window
+      - Navigate back to Timer page → verify floating window hides
+      - Switch browser tabs while on any page → verify floating timer shows
+      - Test dragging and resizing floating window
+      - Test maximize button navigates to Timer page
+      - Verify timer completes correctly and saves session
+      - Test pause/resume from Timer page, then navigate away
