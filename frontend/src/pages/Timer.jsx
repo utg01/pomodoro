@@ -178,20 +178,33 @@ const Timer = () => {
 
   useEffect(() => {
     if (isRunning) {
+      const preset = getCurrentPreset();
+      const totalSeconds = timerMode === 'work' 
+        ? preset.work * 60 
+        : timerMode === 'shortBreak' 
+        ? preset.shortBreak * 60 
+        : preset.longBreak * 60;
+      
       startTimeRef.current = Date.now();
+      endTimeRef.current = startTimeRef.current + (timeLeft * 1000);
+      
       intervalRef.current = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            handleTimerComplete();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+        const now = Date.now();
+        const remainingMs = endTimeRef.current - now;
+        
+        if (remainingMs <= 0) {
+          setTimeLeft(0);
+          handleTimerComplete();
+          return;
+        }
+        
+        setTimeLeft(Math.ceil(remainingMs / 1000));
+      }, 100); // Check every 100ms for better accuracy
     } else {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         
+        // Save partial work session when paused
         if (timerMode === 'work' && startTimeRef.current) {
           const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000 / 60);
           if (elapsed >= 1) {
@@ -199,13 +212,14 @@ const Timer = () => {
           }
         }
         startTimeRef.current = null;
+        endTimeRef.current = null;
       }
     }
     
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isRunning, handleTimerComplete, timerMode, saveStudySession]);
+  }, [isRunning, handleTimerComplete, timerMode, saveStudySession, getCurrentPreset]);
 
   const toggleTimer = () => {
     setIsRunning(!isRunning);
