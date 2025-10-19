@@ -180,6 +180,21 @@ frontend:
         agent: "main"
         comment: "Added Custom timer option with input fields for work/shortBreak/longBreak. Fixed timer accuracy by using timestamp-based calculation (Date.now() with endTimeRef) instead of simple decrements. Timer now completes exactly at set time. Interval changed to 100ms for better accuracy."
 
+  - task: "Floating picture-in-picture timer window"
+    implemented: true
+    working: true
+    file: "frontend/src/components/FloatingTimer.jsx, frontend/src/pages/Timer.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User requested floating timer window that appears when switching browser tabs (similar to Google Meet). Window should be draggable and resizable."
+      - working: true
+        agent: "main"
+        comment: "Created FloatingTimer component with Page Visibility API integration. Window appears automatically when tab is hidden and timer is running. Features: draggable (click and drag), resizable (drag bottom-right corner), shows time/mode/status, has maximize and close buttons. Position and size constraints prevent window from going off-screen."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
