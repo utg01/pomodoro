@@ -49,6 +49,27 @@ const Timer = () => {
     loadSettings();
   }, [user]);
 
+  // Page Visibility API - Show floating timer when tab is hidden
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const isVisible = document.visibilityState === 'visible';
+      setIsTabVisible(isVisible);
+      
+      // Show floating timer when tab is hidden and timer is running
+      if (!isVisible && isRunning) {
+        setShowFloatingTimer(true);
+      } else if (isVisible) {
+        setShowFloatingTimer(false);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isRunning]);
+
   const getCurrentPreset = useCallback(() => {
     if (selectedPreset === 'custom') {
       return customTimer;
