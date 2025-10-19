@@ -42,9 +42,9 @@ const Timer = () => {
     loadSettings();
   }, [user]);
 
-  const getCurrentPreset = () => {
+  const getCurrentPreset = useCallback(() => {
     return presets.find(p => p.id === selectedPreset) || presets[0] || { work: 25, shortBreak: 5, longBreak: 15 };
-  };
+  }, [presets, selectedPreset]);
 
   const handlePresetChange = (presetId) => {
     if (isRunning) {
