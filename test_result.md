@@ -203,8 +203,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Custom/manual timer option on Timer page"
-    - "Timer accuracy fix"
+    - "Floating picture-in-picture timer window"
+    - "Custom/manual timer option"
+    - "Timer accuracy"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -214,25 +215,29 @@ agent_communication:
     message: |
       NEW FEATURES IMPLEMENTED ✅
       
-      1. Custom/Manual Timer Option:
-         - Added "Custom" button to preset selector on Timer page
-         - Displays input fields for Work, Short Break, and Long Break durations (1-180 minutes)
-         - Users can set custom timer directly without going to Settings
-         - Input fields are disabled while timer is running to prevent changes mid-session
-         - Custom timer values are preserved when switching between presets
+      1. Floating Picture-in-Picture Timer Window:
+         - Created FloatingTimer component that appears when switching browser tabs
+         - Uses Page Visibility API to detect tab visibility changes
+         - Automatically shows when timer is running and user switches tabs
+         - DRAGGABLE: Click and hold anywhere on the window to drag it
+         - RESIZABLE: Drag the bottom-right corner to resize (250-600px width, 150-400px height)
+         - Shows timer countdown, mode (Focus/Break), and running status
+         - Maximize button to return to main timer tab
+         - Close button to hide the floating window
+         - Window stays within screen bounds (can't be dragged off-screen)
+         - High z-index (9999) ensures it stays on top
       
-      2. Timer Accuracy Fix:
-         - Fixed timer running slow issue by using timestamp-based calculation
-         - Timer now uses Date.now() with endTimeRef to calculate exact remaining time
-         - Changed interval from 1000ms to 100ms for more accurate updates
-         - Timer completes exactly at set time (no drift)
-         - Saves actual elapsed time when work sessions complete
+      2. Custom/Manual Timer (from previous task):
+         - Added "Custom" button with input fields on Timer page
+         - Users can set Work, Short Break, Long Break durations (1-180 min)
+         - Fixed timer accuracy using timestamp-based calculation
       
       TESTING REQUIRED:
-      - Test Custom timer: set 20 minutes, verify it completes in exactly 20 minutes
-      - Test preset timers still work correctly
-      - Test switching between Custom and presets
-      - Test timer accuracy with different durations (5min, 10min, 25min, etc.)
-      - Verify timer can't be changed while running
-      - Test pause/resume functionality
-      - Verify study sessions save correct duration to Firebase
+      - Start a timer and switch to a different browser tab → floating window should appear
+      - Test dragging the floating window around the screen
+      - Test resizing by dragging bottom-right corner
+      - Test maximize button (should focus back on timer tab and hide floating window)
+      - Test close button (should hide floating window)
+      - Verify floating window doesn't appear when timer is paused
+      - Test with different screen sizes
+      - Verify timer continues to update in floating window
