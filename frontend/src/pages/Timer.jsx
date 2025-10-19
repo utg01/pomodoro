@@ -286,7 +286,64 @@ const Timer = () => {
               {preset.name}
             </Button>
           ))}
+          <Button
+            variant={selectedPreset === 'custom' ? 'default' : 'outline'}
+            onClick={() => handlePresetChange('custom')}
+            className={`${
+              selectedPreset === 'custom'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-transparent'
+                : 'bg-[#13131a]/50 text-gray-400 border-[#22d3ee]/20 hover:border-[#22d3ee]/40 hover:text-white'
+            } font-mono`}
+          >
+            <Clock className="w-4 h-4 mr-2" />
+            Custom
+          </Button>
         </div>
+
+        {/* Custom Timer Input */}
+        {showCustomInput && (
+          <Card className="p-4 sm:p-6 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20 mb-6">
+            <h3 className="text-lg font-semibold text-white mb-4 font-mono">Custom Timer Settings</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm text-gray-400 font-mono mb-2 block">Work (min)</label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="180"
+                  value={customTimer.work}
+                  onChange={(e) => handleCustomTimerChange('work', e.target.value)}
+                  className="bg-[#1a1a24] border-[#22d3ee]/20 text-white font-mono"
+                  disabled={isRunning}
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-400 font-mono mb-2 block">Short Break (min)</label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="180"
+                  value={customTimer.shortBreak}
+                  onChange={(e) => handleCustomTimerChange('shortBreak', e.target.value)}
+                  className="bg-[#1a1a24] border-[#22d3ee]/20 text-white font-mono"
+                  disabled={isRunning}
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-400 font-mono mb-2 block">Long Break (min)</label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="180"
+                  value={customTimer.longBreak}
+                  onChange={(e) => handleCustomTimerChange('longBreak', e.target.value)}
+                  className="bg-[#1a1a24] border-[#22d3ee]/20 text-white font-mono"
+                  disabled={isRunning}
+                />
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Timer Card */}
         <Card className="p-6 sm:p-8 md:p-12 bg-[#13131a]/50 backdrop-blur-xl border-[#22d3ee]/20 relative overflow-hidden">
