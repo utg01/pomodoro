@@ -47,8 +47,11 @@ const Timer = () => {
   }, [user]);
 
   const getCurrentPreset = useCallback(() => {
+    if (selectedPreset === 'custom') {
+      return customTimer;
+    }
     return presets.find(p => p.id === selectedPreset) || presets[0] || { work: 25, shortBreak: 5, longBreak: 15 };
-  }, [presets, selectedPreset]);
+  }, [presets, selectedPreset, customTimer]);
 
   const handlePresetChange = (presetId) => {
     if (isRunning) {
@@ -60,10 +63,36 @@ const Timer = () => {
       return;
     }
     setSelectedPreset(presetId);
-    const preset = presets.find(p => p.id === presetId);
-    if (preset) {
-      setTimeLeft(preset.work * 60);
-      setTimerMode('work');
+    
+    if (presetId === 'custom') {
+      setShowCustomInput(true);
+      setTimeLeft(customTimer.work * 60);
+    } else {
+      setShowCustomInput(false);
+      const preset = presets.find(p => p.id === presetId);
+      if (preset) {
+        setTimeLeft(preset.work * 60);
+      }
+    }
+    setTimerMode('work');
+  };
+
+  const handleCustomTimerChange = (field, value) => {
+    const numValue = parseInt(value) || 0;
+    if (numValue < 1 || numValue > 180) {
+      toast({
+        title: "Invalid time",
+        description: "Please enter a value between 1 and 180 minutes",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const newCustomTimer = { ...customTimer, [field]: numValue };
+    setCustomTimer(newCustomTimer);
+    
+    if (field === 'work' && timerMode === 'work' && !isRunning) {
+      setTimeLeft(numValue * 60);
     }
   };
 
