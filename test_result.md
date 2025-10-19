@@ -150,6 +150,21 @@ frontend:
         agent: "main"
         comment: "Added responsive Tailwind classes: grid layouts now stack on mobile (sm/md/lg breakpoints), text sizes adjusted, padding reduced, filters wrap properly, buttons stack on mobile"
 
+  - task: "Dynamic daily goal bar with time comparison"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/Dashboard.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User requested daily goal bar to show time studied vs daily goal (e.g., 30/120m) and progress bar to reflect percentage completion"
+      - working: true
+        agent: "main"
+        comment: "Updated Dashboard.jsx Daily Goal card to display todayStudyTime/dailyGoal format (e.g., '30/120m'). Progress bar still shows visual percentage based on goalProgress calculation."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
