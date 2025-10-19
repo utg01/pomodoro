@@ -1,27 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/card';
 import { Clock, TrendingUp, Calendar, Activity } from 'lucide-react';
-import { getSessions } from '../utils/firestoreService';
+import { getSessions, getSettings } from '../utils/firestoreService';
 import { useAuth } from '../contexts/AuthContext';
 
 const Statistics = () => {
   const { user } = useAuth();
   const [sessions, setSessions] = useState([]);
+  const [settings, setSettings] = useState({ dailyGoal: 120 });
   const [timeRange, setTimeRange] = useState('week');
 
   useEffect(() => {
     if (!user) return;
     
-    const loadSessions = async () => {
+    const loadData = async () => {
       try {
-        const savedSessions = await getSessions();
+        const [savedSessions, savedSettings] = await Promise.all([
+          getSessions(),
+          getSettings()
+        ]);
         setSessions(savedSessions || []);
+        setSettings(savedSettings || { dailyGoal: 120 });
       } catch (error) {
-        console.error('Error loading sessions:', error);
+        console.error('Error loading data:', error);
       }
     };
     
-    loadSessions();
+    loadData();
   }, [user]);
 
   const getFilteredSessions = () => {
