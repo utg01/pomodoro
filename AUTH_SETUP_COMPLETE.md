@@ -42,7 +42,7 @@ User → Google OAuth → Firebase Auth → ID Token → Backend Verification �
 ## 🚀 Testing Authentication
 
 ### Step 1: Access the App
-Open: https://progress-tracker-159.preview.emergentagent.com
+Open: https://daily-goal-meter.preview.emergentagent.com
 
 ### Step 2: Login
 1. You'll see the login page (if not logged in)
