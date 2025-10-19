@@ -97,7 +97,7 @@ const Timer = () => {
   };
 
   const saveStudySession = useCallback(async (minutes) => {
-    if (!user) return;
+    if (!user || minutes < 1) return;
     
     try {
       const newSession = {
