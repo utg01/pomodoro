@@ -119,7 +119,9 @@ const Dashboard = () => {
           </div>
           <div>
             <p className="text-sm text-gray-400 mb-1 font-medium">Daily Progress</p>
-            <p className="text-3xl font-bold text-white mb-1">{goalProgress}<span className="text-lg text-gray-500">%</span></p>
+            <p className="text-3xl font-bold text-white mb-1">
+              {todayStudyTime}<span className="text-lg text-gray-500">/{settings.dailyGoal}m</span>
+            </p>
             <div className="w-full bg-[#1a1a24] rounded-full h-1.5 mt-2">
               <div className="bg-gradient-to-r from-cyan-500 to-blue-500 h-1.5 rounded-full transition-all duration-500" style={{ width: `${goalProgress}%` }}></div>
             </div>
