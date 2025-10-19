@@ -63,6 +63,86 @@ const Timer = () => {
     }
   };
 
+  const saveStudySession = useCallback(async (minutes) => {
+    if (!user) return;
+    
+    try {
+      const newSession = {
+        id: `session_${Date.now()}`,
+        date: new Date().toISOString(),
+        duration: minutes,
+        type: timerMode,
+        preset: selectedPreset,
+        timestamp: Date.now()
+      };
+      
+      await saveSession(newSession);
+      
+      const lastDate = settings.lastStudyDate;
+      const todayStr = new Date().toDateString();
+      
+      if (!lastDate || new Date(lastDate).toDateString() !== todayStr) {
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        const isConsecutive = lastDate && new Date(lastDate).toDateString() === yesterday;
+        
+        const newSettings = {
+          ...settings,
+          currentStreak: isConsecutive ? settings.currentStreak + 1 : 1,
+          lastStudyDate: new Date().toISOString()
+        };
+        setSettings(newSettings);
+        await saveSettings(newSettings);
+      }
+    } catch (error) {
+      console.error('Error saving session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save session",
+        variant: "destructive"
+      });
+    }
+  }, [user, timerMode, selectedPreset, settings, toast]);
+
+  const handleTimerComplete = useCallback(() => {
+    setIsRunning(false);
+    
+    const preset = getCurrentPreset();
+    
+    if (timerMode === 'work') {
+      setSessionsCompleted(prev => {
+        const newCount = prev + 1;
+        
+        const workMinutes = preset.work;
+        saveStudySession(workMinutes);
+        
+        if (newCount % 4 === 0) {
+          setTimerMode('longBreak');
+          setTimeLeft(preset.longBreak * 60);
+          toast({
+            title: "Great work!",
+            description: `Time for a ${preset.longBreak} minute long break`
+          });
+        } else {
+          setTimerMode('shortBreak');
+          setTimeLeft(preset.shortBreak * 60);
+          toast({
+            title: "Session complete!",
+            description: `Time for a ${preset.shortBreak} minute break`
+          });
+        }
+        
+        return newCount;
+      });
+    } else {
+      setTimerMode('work');
+      setTimeLeft(preset.work * 60);
+      toast({
+        title: "Break over!",
+        description: "Ready to focus again?"
+      });
+    }
+  }, [timerMode, presets, selectedPreset, saveStudySession, toast]);
+
   useEffect(() => {
     if (isRunning) {
       startTimeRef.current = Date.now();
@@ -92,83 +172,7 @@ const Timer = () => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isRunning]);
-
-  const saveStudySession = async (minutes) => {
-    if (!user) return;
-    
-    try {
-      const newSession = {
-        id: `session_${Date.now()}`,
-        date: new Date().toISOString(),
-        duration: minutes,
-        type: timerMode,
-        preset: selectedPreset
-      };
-      
-      await saveSession(newSession);
-      
-      const lastDate = settings.lastStudyDate;
-      const todayStr = new Date().toDateString();
-      
-      if (!lastDate || new Date(lastDate).toDateString() !== todayStr) {
-        const yesterday = new Date(Date.now() - 86400000).toDateString();
-        const isConsecutive = lastDate && new Date(lastDate).toDateString() === yesterday;
-        
-        const newSettings = {
-          ...settings,
-          currentStreak: isConsecutive ? settings.currentStreak + 1 : 1,
-          lastStudyDate: new Date().toISOString()
-        };
-        setSettings(newSettings);
-        await saveSettings(newSettings);
-      }
-    } catch (error) {
-      console.error('Error saving session:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save session",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleTimerComplete = () => {
-    setIsRunning(false);
-    
-    const preset = getCurrentPreset();
-    
-    if (timerMode === 'work') {
-      const newCount = sessionsCompleted + 1;
-      setSessionsCompleted(newCount);
-      
-      const workMinutes = preset.work;
-      saveStudySession(workMinutes);
-      
-      if (newCount % 4 === 0) {
-        setTimerMode('longBreak');
-        setTimeLeft(preset.longBreak * 60);
-        toast({
-          title: "Great work!",
-          description: `Time for a ${preset.longBreak} minute long break`
-        });
-      } else {
-        setTimerMode('shortBreak');
-        setTimeLeft(preset.shortBreak * 60);
-        toast({
-          title: "Session complete!",
-          description: `Time for a ${preset.shortBreak} minute break`
-        });
-      }
-    } else {
-      setTimerMode('work');
-      setTimeLeft(preset.work * 60);
-      toast({
-        title: "Break over!",
-        description: "Ready to focus again?"
-      });
-    }
-  };
+  }, [isRunning, handleTimerComplete, timerMode, saveStudySession]);
 
   const toggleTimer = () => {
     setIsRunning(!isRunning);
