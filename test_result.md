@@ -165,6 +165,21 @@ frontend:
         agent: "main"
         comment: "Updated Dashboard.jsx Daily Goal card to display todayStudyTime/dailyGoal format (e.g., '30/120m'). Progress bar still shows visual percentage based on goalProgress calculation."
 
+  - task: "Add custom/manual timer option on Timer page"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/Timer.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User requested ability to set manual/custom timer directly on Timer page without needing to go to Settings. Also reported timer running slow and not completing in set time."
+      - working: true
+        agent: "main"
+        comment: "Added Custom timer option with input fields for work/shortBreak/longBreak. Fixed timer accuracy by using timestamp-based calculation (Date.now() with endTimeRef) instead of simple decrements. Timer now completes exactly at set time. Interval changed to 100ms for better accuracy."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
