@@ -173,8 +173,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Firebase data persistence across devices"
-    - "Mobile responsive design"
+    - "Dynamic daily goal bar with time comparison"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -182,29 +181,16 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: |
-      COMPLETED FIXES:
+      NEW FEATURE IMPLEMENTED ✅
       
-      1. DATA PERSISTENCE ISSUE - FIXED ✅
-         Root Cause: All pages were using localStorage instead of Firebase Firestore
-         Solution: Updated 5 pages to use firestoreService with user.uid scoping
-         - Timer.jsx: Now saves sessions and settings to Firebase
-         - TodoList.jsx: Now saves todos to Firebase with real-time sync
-         - Settings.jsx: Now saves settings and presets to Firebase
-         - Dashboard.jsx: Now reads all data from Firebase
-         - Statistics.jsx: Now reads session data from Firebase
-      
-      2. MOBILE RESPONSIVENESS - FIXED ✅
-         Added responsive Tailwind classes across all pages:
-         - Responsive padding: p-4 sm:p-6 md:p-8
-         - Responsive text: text-2xl sm:text-3xl md:text-4xl
-         - Responsive grids: grid-cols-1 sm:grid-cols-2 lg:grid-cols-4
-         - Filters wrap on mobile with horizontal scroll fallback
-         - Buttons stack vertically on mobile (flex-col sm:flex-row)
-         - Timer display scales: w-64 h-64 sm:w-80 sm:h-80
+      Dynamic Daily Goal Bar:
+      - Updated Dashboard.jsx to show time studied vs daily goal in format "X/Y" (e.g., "30/120m")
+      - Progress bar dynamically fills based on percentage: (todayStudyTime / dailyGoal) * 100
+      - If user studied 30 minutes with 120-minute goal, bar shows "30/120m" and fills 25%
+      - Visual progress bar uses gradient (cyan to blue) and animates with transition-all duration-500
       
       TESTING REQUIRED:
-      - Test login and data sync across multiple devices/browsers
-      - Test mobile interface on various screen sizes
-      - Verify real-time updates work for todos
-      
-      Frontend compiled successfully with no errors.
+      - Verify daily goal card displays correct time format (X/Y minutes)
+      - Test progress bar fills correctly based on study time vs goal
+      - Test with different scenarios (0%, 25%, 50%, 100%, >100%)
+      - Ensure clicking card still navigates to settings page
